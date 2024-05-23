@@ -10,7 +10,7 @@ const userRoutes = express.Router();
 const upload = multer({storage});
 
 //!Register
-userRoutes.post('/register',upload.single("profilePicture"),register);
+userRoutes.post('/register',register);
 
 //!Login
 userRoutes.post('/login',login);

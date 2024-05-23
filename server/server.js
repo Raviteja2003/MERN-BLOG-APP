@@ -8,7 +8,8 @@ const categoryRouter = require("./routes/category/categoryRouter");
 const postRouter = require("./routes/post/postRouter");
 const commentRouter = require("./routes/comment/commentRouter");
 const sendEmail = require("./utils/sendEmail");
-//sendEmail("ravitejat0406@gmail.com","abcdefgh");
+const cors = require("cors");
+
 //Server creation
 const app = express();
 
@@ -18,6 +19,8 @@ connectDB();
 
 //middleware
 app.use(express.json());//pass the data
+//cors middleware
+app.use(cors());
 
 //Routes
 app.use('/api/v1/users',userRoutes);
