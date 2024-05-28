@@ -90,12 +90,26 @@ exports.getPosts = asyncHandler(async(req,res)=>{
 
 
 //@desc  Get single post
-//@route GET /api/v1/posts:id
+//@route GET /api/v1/posts/:id
 //@acess public
 exports.getPost = asyncHandler(async(req,res)=>{
     
-    const post = await Post.findById(req.params.id);
-    
+    const post = await Post.findById(req.params.id).populate("author")
+    .populate("category")
+    .populate({
+      path: "comments",
+      model: "Comment",
+      populate: {
+        path: "author",
+        select: "username",
+      },
+    });
+    if (!post) {
+        return res.status(404).json({
+            status: "failed",
+            message: "Post not found",
+        });
+    }
     res.status(201).json({
         status:"success",
         message:"post successfully fetched",
@@ -274,3 +288,19 @@ exports.schedule = expressAsyncHandler(async(req,res)=>{
         post
     })
 })
+
+//@desc  Get only 4 posts
+//@route GET /api/v1/posts
+//@access PUBLIC
+
+exports.getPublicPosts = asyncHandler(async (req, res) => {
+    const posts = await Post.find({})
+      .sort({ createdAt: -1 })
+      .limit(4)
+      .populate("category");
+    res.status(201).json({
+      status: "success",
+      message: "Posts successfully fetched",
+      posts,
+    });
+  });

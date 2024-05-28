@@ -27,7 +27,7 @@ const INITIAL_STATE = {
 //! Register Action
 export const registerAction = createAsyncThunk(
     "users/register",
-    async (payload, { rejectWithValue }) => {
+    async (payload, { rejectWithValue,getState,dispatch }) => {
         try {
             const { data } = await axios.post("http://localhost:5000/api/v1/users/register", payload);
             return data;
@@ -40,7 +40,7 @@ export const registerAction = createAsyncThunk(
 //! Login Action
 export const loginAction = createAsyncThunk(
     "users/login",
-    async (payload, { rejectWithValue }) => {
+    async (payload, { rejectWithValue,getState,dispatch }) => {
         try {
             const { data } = await axios.post("http://localhost:5000/api/v1/users/login", payload);
             localStorage.setItem("userInfo", JSON.stringify(data));
@@ -66,7 +66,7 @@ const usersSlice = createSlice({
     
     extraReducers: (builder) => {
         // login pending
-        builder.addCase(loginAction.pending, (state) => {
+        builder.addCase(loginAction.pending, (state,action) => {
             state.loading = true;
              
         });

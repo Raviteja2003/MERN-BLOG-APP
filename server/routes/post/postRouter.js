@@ -1,6 +1,6 @@
 const express = require('express');
 const isLogin = require('../../middleware/isLogin');
-const { createPost, getPosts, getPost, deletePost, updatePost, likePost, disLikePost, claps, schedule } = require('../../controllers/posts/posts');
+const { createPost, getPosts, getPost, deletePost, updatePost, likePost, disLikePost, claps, schedule, getPublicPosts } = require('../../controllers/posts/posts');
 const checkAccountVerification = require('../../middleware/isAccountVerified');
 const storage = require('../../utils/fileUpload');
 const multer = require("multer");
@@ -16,8 +16,11 @@ postRouter.post("/",isLogin,upload.single("file"),createPost);
 //getting all posts
 postRouter.get("/",isLogin,getPosts);
 
+//get only 4 posts
+postRouter.get("/public", getPublicPosts);
+
 //single post
-postRouter.get("/",getPost);
+postRouter.get("/:id",getPost);
 
 //delete post
 postRouter.delete("/:id",isLogin,deletePost);
