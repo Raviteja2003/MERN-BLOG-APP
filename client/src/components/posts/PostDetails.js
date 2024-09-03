@@ -1,25 +1,53 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPostAction } from "../../redux/slices/post/postsSlice";
-import { useParams } from "react-router-dom";
+import { deletePostAction, getPostAction, postViewsCountAction } from "../../redux/slices/post/postsSlice";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import LoadingComponent from "../Alerts/LoadingComponent";
 import ErrorMsg from "../Alerts/ErrorMsg";
 import PostStats from "./PostStats";
+import calculateReadingTime from "../../utils/calculateReadingTime";
+import AddComment from "../comments/AddComment";
 
 const PostDetails = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const {post,error,loading,success} = useSelector((state)=>state?.posts);
+  //Get the login user
+  const {userAuth} = useSelector((state)=>state?.users);
+
   //!Get params
   const {postId} = useParams();
 
   //!dispatch
   useEffect(() => {
     dispatch(getPostAction(postId));
+  }, [dispatch,postId,post?.post?.likes.length,post?.post?.dislikes.length]);
+
+  //!post views count
+  useEffect(() => {
+    dispatch(postViewsCountAction(postId));
   }, [dispatch]);
+
+  //!Get the creator of the post
+  const  creator =  post?.post?.author?._id?.toString();
+
+  //!get the login user
+  const loginUser = userAuth?.userInfo?._id?.toString();
+
+  const  isCreator = creator===loginUser;
+
+  //!Delete post handler
+  const deletePostHandler = () => {
+    dispatch(deletePostAction(postId));
+    if(navigate)
+    {
+      navigate("/posts")
+    }
+  }
 
   return (
     <>
-      {loading  ?  <LoadingComponent/> : error?<ErrorMsg message={error?.message}/>: <section
+      { error?<ErrorMsg message={error?.message}/>: <section
       className="py-16 bg-white md:py-24"
       style={{
         backgroundImage: 'url("flex-ui-assets/elements/pattern-white.svg")',
@@ -36,15 +64,13 @@ const PostDetails = () => {
             <p className="inline-block font-medium text-green-500">{post?.post?.author?.username}</p>
             <span className="mx-1 text-green-500">•</span>
             <p className="inline-block font-medium text-green-500">
-              {post?.post?.createdAt}
+              {new Date(post?.post?.createdAt).toDateString()}
             </p>
           </div>
           <h2 className="mb-4 text-3xl font-bold leading-tight tracking-tighter md:text-5xl text-darkCoolGray-900">
             {post?.post?.title}
           </h2>
-          <p className="mb-10 text-lg font-medium md:text-xl text-coolGray-500">
-            {post?.post?.content}
-          </p>
+          
           <div className="flex items-center justify-center -mx-2 text-left">
             <div className="w-auto px-2">
               <img
@@ -57,9 +83,7 @@ const PostDetails = () => {
               <h4 className="text-base font-bold md:text-lg text-coolGray-800">
                 {post?.post?.author?.username}
               </h4>
-              <p className="text-base md:text-lg text-coolGray-500">
-                12 October 2021
-              </p>
+              
             </div>
           </div>
         </div>
@@ -86,8 +110,9 @@ const PostDetails = () => {
           postViews={post?.post?.postViews}
           totalComments={post?.post?.comments?.length}
           createdAt={post?.post?.createdAt}
-          postId={postId}
           claps={post?.post?.claps}
+          readingTime={calculateReadingTime(post?.post?.content)}
+          postId = {post?.post?._id}
         />
       </div>
       <div className="container px-4 mx-auto">
@@ -95,8 +120,10 @@ const PostDetails = () => {
           <p className="pb-10 mb-8 text-lg font-medium border-b md:text-xl text-coolGray-500 border-coolGray-100">
             {post?.post?.content}
           </p>
-          <div className="flex justify-end mb-4">
-            <button className="p-2 mr-2 text-gray-500 hover:text-gray-700">
+          {/*Delete and update icons */}
+          {isCreator && <div className="flex justify-end mb-4">
+            {/*edit button*/}
+            <Link to={`/posts/${post?.post?._id}/update`}className="p-2 mr-2 text-gray-500 hover:text-gray-700">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -111,8 +138,9 @@ const PostDetails = () => {
                   d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
                 />
               </svg>
-            </button>
-            <button className="p-2 text-gray-500 hover:text-gray-700">
+            </Link>
+            {/*delete button*/}
+            <button onClick={deletePostHandler} className="p-2 text-gray-500 hover:text-gray-700">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -128,12 +156,13 @@ const PostDetails = () => {
                 />
               </svg>
             </button>
-          </div>
+          </div>}
           <h3 className="mb-4 text-2xl font-semibold md:text-3xl text-coolGray-800">
             Add a comment
           </h3>
 
           {/* Comment form */}
+          <AddComment postId={postId} comments={post?.post?.comments}/>
         </div>
       </div>
     </section>}

@@ -78,7 +78,7 @@ exports.getPosts = asyncHandler(async(req,res)=>{
         path:"author",
         model:"User",
         select:"username email role",
-    });
+    }).populate("category");
     
     res.status(201).json({
         status:"success",
@@ -122,6 +122,12 @@ exports.getPost = asyncHandler(async(req,res)=>{
 //@route DELETE /api/v1/post/:id
 //@acess Private
 exports.deletePost = asyncHandler(async(req,res)=>{
+    const postFound = await Post.findById(req.params.id);
+    const isAuthor = req?.userAuth?._id?.toString() === postFound?.author?._id?.toString();
+    if(!isAuthor)
+    {
+        throw new Error("Acess denied, you are not the creator of the post");
+    } 
     await Post.findByIdAndDelete(req.params.id);
     res.status(201).json({
         status:"success",
@@ -135,8 +141,22 @@ exports.deletePost = asyncHandler(async(req,res)=>{
 //@route PUT /api/v1/post/:id
 //@acess Private
 exports.updatePost = asyncHandler(async(req,res)=>{
-    const post = await Post.findByIdAndUpdate(req.params.id,
-        req.body,
+    //!check if the post exists
+    const {id} = req.params;
+    const postFound = await Post.findById(id);
+    if(!postFound)
+    {
+        throw new Error('post not found');
+    }
+    //!image upload
+    const {title,category,content}=req.body
+    const post = await Post.findByIdAndUpdate(id,
+        {
+            image:req?.file?.path ? req?.file?.path : postFound?.image,
+            title : title ? title : postFound?.title,
+            category: category?category:postFound?.category,
+            content: content?content:postFound?.content,
+        },
         {
             new : true,
             runValidators:true,
@@ -304,3 +324,33 @@ exports.getPublicPosts = asyncHandler(async (req, res) => {
       posts,
     });
   });
+
+//@post view count
+//@route PUT /api/v1/post/:id/post-views-count
+//@acess Private
+exports.postViewCount = expressAsyncHandler(async(req,res)=>{
+    //Get the id of post
+    const {id} = req.params;
+    //Get the login user
+    const userId = req.userAuth._id;
+    //Get the post
+    const post = await Post.findById(id);
+    if(!post)
+    {
+        throw new Error("Post not Found");
+    }
+    //push the user into post likes
+    await Post.findByIdAndUpdate(id,
+        {
+            $addToSet:{postViews:userId},
+        },
+        {
+            new : true,
+        }
+    );
+    await post.save();
+    res.status(200).json({
+        message:"post liked successfully",
+        post
+    })
+});

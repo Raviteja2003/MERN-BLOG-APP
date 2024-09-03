@@ -1,16 +1,16 @@
 
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPublicPostsAction } from './../../redux/slices/post/postsSlice';
+import { fetchPrivatePostsAction, fetchPublicPostsAction } from './../../redux/slices/post/postsSlice';
 import LoadingComponent from './../Alerts/LoadingComponent';
 import { Link } from 'react-router-dom';
 
-const PublicPosts = () => {
+const PostLists = () => {
   const dispatch = useDispatch();
   const {posts,error,loading,success} = useSelector((state)=>state?.posts);
   //!dispatch
   useEffect(() => {
-    dispatch(fetchPublicPostsAction());
+    dispatch(fetchPrivatePostsAction());
   }, [dispatch]);
   return (
     <>
@@ -18,6 +18,12 @@ const PublicPosts = () => {
         <section className="relative py-24 bg-white">
           <div
             className="absolute top-0 left-0 w-full h-full"
+            style={{
+              backgroundImage:
+                'url("flex-ui-assets/elements/pattern-white.svg")',
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "left top",
+            }}
           />
           <div className="container relative z-10 px-4 mx-auto">
             <div className="md:max-w-5xl mx-auto mb-8 md:mb-16 text-center">
@@ -103,4 +109,4 @@ const PublicPosts = () => {
   );
 };
 
-export default PublicPosts;
+export default PostLists;

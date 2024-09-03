@@ -2,6 +2,9 @@ import React from "react";
 import { AiOutlineEye } from "react-icons/ai";
 import { RiEmotionLine } from "react-icons/ri";
 import moment from "moment";
+import { useDispatch } from "react-redux";
+import { clapPostAction, dislikePostAction, likePostAction } from "../../redux/slices/post/postsSlice";
+import { PiHandsClappingDuotone } from "react-icons/pi";
 
 const PostStats = ({
   views,
@@ -10,8 +13,27 @@ const PostStats = ({
   totalComments,
   readingTime,
   createdAt,
+  postId,
+  claps,
 }) => {
-  const timeSinceCreated = moment("2023/10/10").fromNow();
+  const timeSinceCreated = moment(createdAt).fromNow();
+  const dispatch = useDispatch();
+
+  //! like post handler
+  const likepostHandler = () => {
+    dispatch(likePostAction(postId));
+    
+  }
+  //! dislike post handler
+  const dislikepostHandler = () => {
+    dispatch(dislikePostAction(postId));
+    
+  }
+  //! clap post handler
+  const clapPostHandler = () => {
+    dispatch(clapPostAction(postId));
+    
+  }
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-2 p-2 md:justify-start">
@@ -36,9 +58,11 @@ const PostStats = ({
           />
         </svg>
 
-        {views}
+        {views?.length}
       </div>
-      <div className="flex items-center gap-1 m-2 text-2xl text-gray-400">
+      <button onClick={likepostHandler} 
+
+        className="flex items-center gap-1 m-2 text-2xl text-gray-400">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -55,8 +79,8 @@ const PostStats = ({
         </svg>
 
         {likes}
-      </div>
-      <div className="flex items-center gap-1 m-2 text-2xl text-gray-400">
+      </button>
+      <button  onClick={dislikepostHandler} className="flex items-center gap-1 m-2 text-2xl text-gray-400">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -73,7 +97,12 @@ const PostStats = ({
         </svg>
 
         {dislikes}
-      </div>
+      </button>
+
+      <button  onClick={clapPostHandler} className="flex items-center gap-1 m-2 text-2xl text-gray-400">
+        <PiHandsClappingDuotone/>
+        {claps}
+      </button>
       
       <div className="flex items-center gap-1 m-2 text-2xl text-gray-400">
         <svg

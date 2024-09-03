@@ -8,6 +8,8 @@ import { useSelector } from "react-redux";
 import ProtectedRoute from "./components/AuthRoute/ProtectedRoute";
 import AddPost from "./components/posts/AddPost";
 import PostDetails from './components/posts/PostDetails';
+import PostLists from "./components/posts/PostLists";
+import UpdatePost from './components/posts/UpdatePost';
 
 export default function App() {
   //!Get the login user from store
@@ -31,6 +33,14 @@ export default function App() {
         {/*post details */}
         <Route path="/posts/:postId" element={<ProtectedRoute>
           <PostDetails/>
+        </ProtectedRoute>}></Route>
+        {/*private posts */}
+        <Route path="/posts" element={<ProtectedRoute>
+          <PostLists/>
+        </ProtectedRoute>}></Route>
+        {/*update*/}
+        <Route path="/posts/:postId/update" element={<ProtectedRoute>
+          <UpdatePost/>
         </ProtectedRoute>}></Route>
       </Routes>
     </BrowserRouter>
