@@ -37,6 +37,83 @@ export const registerAction = createAsyncThunk(
     }
 );
 
+
+//! Get user public profile Action
+export const userPublicProfileAction = createAsyncThunk(
+    "users/user-public-profile",
+    async (userId, { rejectWithValue,getState,dispatch }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.token;
+            const config = {
+                headers:{
+                    Authorization : `Bearer ${token}`
+                }
+            }
+            const { data } = await axios.get(`http://localhost:5000/api/v1/users/public-profile/${userId}`,config);
+            return data;
+        } catch (error) {
+            return rejectWithValue(error?.response?.data);
+        }
+    }
+);
+
+//! Get user profile Action
+export const userPrivateProfileAction = createAsyncThunk(
+    "users/user-private-profile",
+    async (userId, { rejectWithValue,getState,dispatch }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.token;
+            const config = {
+                headers:{
+                    Authorization : `Bearer ${token}`
+                }
+            }
+            const { data } = await axios.get(`http://localhost:5000/api/v1/users/profile/`,config);
+            return data;
+        } catch (error) {
+            return rejectWithValue(error?.response?.data);
+        }
+    }
+);
+
+//! blocking user Action
+export const blockUserAction = createAsyncThunk(
+    "users/block-user",
+    async (userId, { rejectWithValue,getState,dispatch }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.token;
+            const config = {
+                headers:{
+                    Authorization : `Bearer ${token}`
+                }
+            }
+            const { data } = await axios.put(`http://localhost:5000/api/v1/users/block/${userId}`,{},config);
+            return data;
+        } catch (error) {
+            return rejectWithValue(error?.response?.data);
+        }
+    }
+);
+
+//! unblocking user Action
+export const unblockUserAction = createAsyncThunk(
+    "users/unblock-user",
+    async (userId, { rejectWithValue,getState,dispatch }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.token;
+            const config = {
+                headers:{
+                    Authorization : `Bearer ${token}`
+                }
+            }
+            const { data } = await axios.put(`http://localhost:5000/api/v1/users/unblock/${userId}`,{},config);
+            return data;
+        } catch (error) {
+            return rejectWithValue(error?.response?.data);
+        }
+    }
+);
+
 //! Login Action
 export const loginAction = createAsyncThunk(
     "users/login",
@@ -65,7 +142,7 @@ const usersSlice = createSlice({
     initialState: INITIAL_STATE,
     
     extraReducers: (builder) => {
-        // login pending
+        //! login pending
         builder.addCase(loginAction.pending, (state,action) => {
             state.loading = true;
              
@@ -84,7 +161,83 @@ const usersSlice = createSlice({
             state.loading = false;
         });
 
-        //Register
+        //!user public profile
+        builder.addCase(userPublicProfileAction.pending, (state,action) => {
+            state.loading = true;
+             
+        });
+        // handle fulfilled case
+        builder.addCase(userPublicProfileAction.fulfilled, (state, action) => {
+            state.user = action.payload;
+            state.success = true;
+            state.loading = false;
+            state.error = null;
+            
+        });
+        // handle rejected state
+        builder.addCase(userPublicProfileAction.rejected, (state, action) => {
+            state.error = action.payload;
+            state.loading = false;
+        });
+
+        //!user private profile
+        builder.addCase(userPrivateProfileAction.pending, (state,action) => {
+            state.loading = true;
+             
+        });
+        // handle fulfilled case
+        builder.addCase(userPrivateProfileAction.fulfilled, (state, action) => {
+            state.profile = action.payload;
+            state.success = true;
+            state.loading = false;
+            state.error = null;
+            
+        });
+        // handle rejected state
+        builder.addCase(userPrivateProfileAction.rejected, (state, action) => {
+            state.error = action.payload;
+            state.loading = false;
+        });
+
+        //!block user
+        builder.addCase(blockUserAction.pending, (state,action) => {
+            state.loading = true;
+             
+        });
+        // handle fulfilled case
+        builder.addCase(blockUserAction.fulfilled, (state, action) => {
+            state.profile = action.payload;
+            state.success = true;
+            state.loading = false;
+            state.error = null;
+            
+        });
+        // handle rejected state
+        builder.addCase(blockUserAction.rejected, (state, action) => {
+            state.error = action.payload;
+            state.loading = false;
+        });
+
+        //!unblock user
+        builder.addCase(unblockUserAction.pending, (state,action) => {
+            state.loading = true;
+             
+        });
+        // handle fulfilled case
+        builder.addCase(unblockUserAction.fulfilled, (state, action) => {
+            state.profile = action.payload;
+            state.success = true;
+            state.loading = false;
+            state.error = null;
+            
+        });
+        // handle rejected state
+        builder.addCase(unblockUserAction.rejected, (state, action) => {
+            state.error = action.payload;
+            state.loading = false;
+        });
+
+        //!Register
         builder.addCase(registerAction.pending, (state) => {
             state.loading = true;
              

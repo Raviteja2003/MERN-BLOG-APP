@@ -347,7 +347,7 @@ exports.postViewCount = expressAsyncHandler(async(req,res)=>{
         {
             new : true,
         }
-    );
+    ).populate('author');
     await post.save();
     res.status(200).json({
         message:"post liked successfully",

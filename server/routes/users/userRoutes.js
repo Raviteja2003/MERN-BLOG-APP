@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, getProfile, blockUser, unblockUser, profileViewers, followUser, unFollowUser, fogotPassword, resetPassword, accountVerificationEmail, verifyAccount } = require('../../controllers/users/userCtrl');
+const { register, login, getProfile, blockUser, unblockUser, profileViewers, followUser, unFollowUser, fogotPassword, resetPassword, accountVerificationEmail, verifyAccount, getPublicProfile } = require('../../controllers/users/userCtrl');
 const isLogin = require('../../middleware/isLogin');
 const storage = require('../../utils/fileUpload');
 const multer = require("multer");
@@ -23,6 +23,9 @@ userRoutes.post('/reset-password/:resetToken',resetPassword);
 
 //!profile
 userRoutes.get('/profile',isLogin,getProfile);
+
+//!public profile
+userRoutes.get('/public-profile/:userId',getPublicProfile);
 
 //!Block user
 userRoutes.put('/block/:userIdToBlock',isLogin,blockUser);

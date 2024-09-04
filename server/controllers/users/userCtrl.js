@@ -78,7 +78,7 @@ exports.login  = asyncHandler( async(req,res)=>{
 })
 
 //@desc profile of a user
-//@route POST api/v1/users/profile/:id
+//@route GET api/v1/users/profile
 //@access private
 
 exports.getProfile = asyncHandler(async(req,res) => {
@@ -104,6 +104,29 @@ exports.getProfile = asyncHandler(async(req,res) => {
     res.json({
         status:"success",
         message:"profile fetched",
+        user,
+    })
+
+})
+
+
+//@desc public profile
+//@route GET api/v1/users/public-profile/:userId
+//@access public
+
+exports.getPublicProfile = asyncHandler(async(req,res) => {
+    
+    //get the id from params
+    const userId = req.params.userId;
+    const user = await User.findById(userId).select("-password").populate({
+        path: "posts",
+        populate: {
+          path: "category",
+        },
+      });
+    res.json({
+        status:"success",
+        message:"public profile fetched",
         user,
     })
 

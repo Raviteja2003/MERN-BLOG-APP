@@ -1,27 +1,45 @@
+import { useEffect } from "react";
 import { FiUpload } from "react-icons/fi";
-const profile = {
-  name: "Ricardo Cooper",
-  imageUrl:
-    "https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80",
-  coverImageUrl:
-    "https://images.unsplash.com/photo-1444628838545-ac4016a5418a?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
-  about: `
-    <p>Tincidunt quam neque in cursus viverra orci, dapibus nec tristique. Nullam ut sit dolor consectetur urna, dui cras nec sed. Cursus risus congue arcu aenean posuere aliquam.</p>
-    <p>Et vivamus lorem pulvinar nascetur non. Pulvinar a sed platea rhoncus ac mauris amet. Urna, sem pretium sit pretium urna, senectus vitae. Scelerisque fermentum, cursus felis dui suspendisse velit pharetra. Augue et duis cursus maecenas eget quam lectus. Accumsan vitae nascetur pharetra rhoncus praesent dictum risus suspendisse.</p>
-  `,
-  fields: {
-    Phone: "(555) 123-4567",
-    Email: "ricardocooper@example.com",
-    Title: "Senior Front-End Developer",
-    Team: "Product Development",
-    Location: "San Francisco",
-    Sits: "Oasis, 4th floor",
-    Salary: "$145,000",
-    Birthday: "June 8, 1990",
-  },
-};
+import { useSelector, useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { blockUserAction, unblockUserAction, userPrivateProfileAction, userPublicProfileAction } from "../../redux/slices/user/usersSlices";
+import UserPosts from "./UserPosts";
 
-export default function UserProfile() {
+
+export default function PublicUserProfile() {
+
+  //!get id from params
+  const {userId} = useParams();
+
+  //!get data from store
+  const dispatch = useDispatch();
+  useEffect(()=>{
+    dispatch(userPublicProfileAction(userId));
+  },[userId,dispatch])
+
+  
+
+  const {user,loading,error,profile} = useSelector((state)=>state?.users);
+
+  //!get all the users the login user has blocked
+  const blockedUsers = profile?.user?.blockedUsers;
+  const hasBlocked = blockedUsers?.some((user) => user?._id === userId);
+
+  //!get user privvate profile
+  useEffect(()=>{
+    dispatch(userPrivateProfileAction());
+  },[userId,dispatch,hasBlocked])
+
+  //!block user handler
+  const blockUserHandler = () => {
+    dispatch(blockUserAction(userId))
+  }
+
+  //!unblock user handler
+  const unblockUserHandler = () => {
+    dispatch(unblockUserAction(userId))
+  }
+
   return (
     <>
       <div className="flex h-full">
@@ -34,7 +52,7 @@ export default function UserProfile() {
                   <div className="relative">
                     <img
                       className="h-32 w-full object-cover lg:h-48"
-                      src={profile.coverImageUrl}
+                      src={user?.coverImageUrl}
                       alt=""
                     />
                     <button
@@ -50,7 +68,7 @@ export default function UserProfile() {
                       <div className="relative flex">
                         <img
                           className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32"
-                          src={profile.imageUrl}
+                          src={user?.imageUrl || "https://cdn.pixabay.com/photo/2020/02/06/15/59/forest-4824759_1280.png"}
                           alt=""
                         />
                         <button
@@ -64,7 +82,7 @@ export default function UserProfile() {
                       <div className="mt-6 sm:flex sm:min-w-0 sm:flex-1 sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
                         <div className="mt-6 min-w-0 flex-1 sm:hidden 2xl:block">
                           <h1 className="truncate text-2xl font-bold text-gray-900">
-                            {profile.name}
+                            {user?.username}
                           </h1>
                         </div>
                       </div>
@@ -96,10 +114,11 @@ export default function UserProfile() {
                           </svg>
                           20
                         </button>
-                        {/* unblock */}
-                        <button
+                        {/* block/unblock */}
+                        {hasBlocked ? <button
                           type="button"
                           className="inline-flex justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                          onClick={unblockUserHandler}
                         >
                           <svg
                             className="-ml-0.5 h-5 w-5 text-gray-400"
@@ -117,11 +136,10 @@ export default function UserProfile() {
                             />
                           </svg>
                           Unblock
-                        </button>
-                        {/* Block */}
-                        <button
+                        </button> :  <button
                           type="button"
                           className="inline-flex justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                          onClick={blockUserHandler}
                         >
                           <svg
                             className="-ml-0.5 h-5 w-5 text-gray-400"
@@ -139,8 +157,7 @@ export default function UserProfile() {
                             />
                           </svg>
                           Block
-                        </button>
-
+                        </button>}
                         {/* follow */}
                         <button
                           type="button"
@@ -189,7 +206,7 @@ export default function UserProfile() {
                     </div>
                     <div className="mt-6 hidden min-w-0 flex-1 sm:block 2xl:hidden">
                       <h1 className="truncate text-2xl font-bold text-gray-900">
-                        {profile.name}
+                        {user?.username}
                       </h1>
                     </div>
                   </div>
@@ -197,31 +214,22 @@ export default function UserProfile() {
 
                 <div className="mt-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                   <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                    {Object.entries(profile.fields).map(([field, value]) => (
-                      <div className="sm:col-span-1" key={field}>
+                    
+                      <div className="sm:col-span-1" >
                         <dt className="text-sm font-medium text-gray-500">
-                          {field}
+                          Email
                         </dt>
-                        <dd className="mt-1 text-sm text-gray-900">{value}</dd>
+                        <dd className="mt-1 text-sm text-gray-900">{user?.user?.email}</dd>
                       </div>
-                    ))}
-                  </dl>
-                  <div className="mt-8">
-                    <div className="flex space-x-6">
-                      <h2 className="text-sm font-medium text-gray-500">
-                        About
-                      </h2>
-                    </div>
-                    <div className="mt-5 text-sm text-gray-700">
-                      {profile.about}
-                    </div>
-                  </div>
+                  </dl>                 
                 </div>
               </article>
             </main>
           </div>
         </div>
       </div>
+       {/*user posts*/}
+       <UserPosts posts={user?.user?.posts}/>
     </>
   );
 }

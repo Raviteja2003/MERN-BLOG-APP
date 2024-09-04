@@ -1,7 +1,7 @@
 import {BrowserRouter,Routes,Route} from "react-router-dom";
 import Homepage from "./components/Homepage/Homepage";
 import Login from "./components/Users/Login";
-import UserProfile from "./components/Users/UserProfile";
+import PublicUserProfile from "./components/Users/PublicUserProfile";
 import PublicNavbar from "./components/Navbar/PublicNavbar";
 import PrivateNavbar from "./components/Navbar/PrivateNavbar";
 import { useSelector } from "react-redux";
@@ -23,8 +23,8 @@ export default function App() {
         <Route path="/login" element={<Login/>}></Route>
         
         {/* public profile */}
-        <Route path="/user-profile" element={<ProtectedRoute>
-          <UserProfile/>
+        <Route path="/user-public-profile/:userId" element={<ProtectedRoute>
+          <PublicUserProfile/>
         </ProtectedRoute>}></Route>
         {/* add post */}
         <Route path="/add-post" element={<ProtectedRoute>
